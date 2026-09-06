@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)file:///C:/Users/prash/OneDrive/Desktop/Excavation_Planner.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excavation Engineering Planner</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --secondary: #10b981;
+            --border: #cbd5e1;
+            --bg: #f8fafc;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { margin: 0; padding: 10px; background: #e2e8f0; display: flex; gap: 15px; height: 100vh; overflow: hidden; }
+        
+        /* Left Panel - Control Matrix */
+        .form-panel {
+            width: 460px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        h2 { margin: 0; color: var(--primary); font-size: 1rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 4px; }
+        .form-group { display: flex; flex-direction: column; gap: 2px; }
+        .form-row-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 4px; }
+        label { font-weight: 600; font-size: 0.65rem; color: #475569; text-transform: uppercase; white-space: nowrap; }
+        input, textarea, select { padding: 6px 4px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.8rem; background: #fff; width: 100%; }
+        
+        .station-list { display: flex; flex-direction: column; gap: 8px; }
+        .station-row { display: flex; flex-direction: column; gap: 4px; padding: 8px; background: var(--bg); border: 1px solid #e2e8f0; border-radius: 6px; }
+        .station-title { font-weight: bold; font-size: 0.8rem; color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #cbd5e1; padding-bottom: 2px;}
+        
+        /* Buttons */
+        button { background: var(--primary); color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; }
+        button:hover { opacity: 0.9; }
+        .btn-secondary { background: var(--secondary); }
+        .btn-delete-station { background: none; color: #ef4444; border: none; padding: 0; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+
+        /* Right Panel */
+        .preview-panel { flex: 1; background: #475569; padding: 10px; overflow-y: auto; display: flex; justify-content: center; align-items: flex-start; }
+        .document-page { 
+            width: 297mm; 
+            height: 210mm; 
+            background: white; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+            padding: 8mm 10mm; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .header-table { width: 100%; border-collapse: collapse; }
+        .header-table td { border: 1px solid #000; padding: 6px 10px; vertical-align: middle; }
+        .label-cell { width: 15%; font-weight: bold; font-size: 10pt; text-align: center; }
+        .value-cell { width: 85%; font-weight: bold; font-size: 9.5pt; text-transform: uppercase; }
+        
+        .graphics-row { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 15px; width: 100%; align-items: center; }
+        .drawing-container { width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .section-title { text-align: center; font-family: "Times New Roman", Times, serif; font-size: 11pt; font-style: italic; text-decoration: underline; margin-top: 4px; font-weight: normal; }
+        svg { display: block; background: white; border: 1px solid #000; }
+
+        /* Calculation Step Log Styles */
+        .calc-report-container {
+            width: 100%;
+            border: 1px solid #000;
+            padding: 10px;
+            font-size: 9pt;
+            background-color: #fafafa;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .calc-title { font-weight: bold; text-decoration: underline; margin-bottom: 6px; font-size: 9.5pt; text-transform: uppercase; color: var(--primary); }
+        .calc-item { margin-bottom: 12px; font-family: 'Courier New', Courier, monospace; line-height: 1.4; }
+        .calc-sub-line { padding-left: 20px; }
+        .total-highlight { font-weight: bold; margin-top: 8px; font-size: 10pt; border-top: 1px solid #000; padding-top: 4px; color: #0369a1; }
+
+        @media print {
+            @page { size: landscape; margin: 0; }
+            body { padding: 0; background: white; height: auto; }
+            .form-panel { display: none; }
+            .preview-panel { padding: 0; background: white; overflow: hidden; }
+            .document-page { box-shadow: none; padding: 8mm 10mm; width: 297mm; height: 210mm; page-break-inside: avoid; page-break-after: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-panel">
+        <h2>Project Information</h2>
+        <div class="form-group">
+            <label>Name of Work / Description</label>
+            <textarea id="workName" oninput="updateAll()" style="height:40px; resize: none;">Excavation work sequence verification profile</textarea>
+        </div>
+
+        <h2>Global Slope Parameter</h2>
+        <div class="form-group">
+            <label>Side Slope Ratio (V : H)</label>
+            <select id="slopeRatioSelector" onchange="updateAll()">
+                <option value="1.00">1 : 1.00 (Soft soil / Sand)</option>
+                <option value="0.50" selected="">1 : 0.50 (Firm Earth / Murrum)</option>
+                <option value="0.25">1 : 0.25 (Soft Rock / Hard Soil)</option>
+            </select>
+        </div>
+
+        <h2>Cross-Section Viewport Selector</h2>
+        <div class="form-group">
+            <label>Active Cross Section Display Node:</label>
+            <select id="cSectionSelector" onchange="renderCrossSection()"><option value="st_0">Station 1 (Ch: 0m)</option><option value="st_1">Station 2 (Ch: 50m)</option><option value="st_2">Station 3 (Ch: 100m)</option><option value="st_1784945312803">Station 4 (Ch: 150m)</option><option value="st_1784945347208">Station 5 (Ch: 200m)</option><option value="st_1784945376735">Station 6 (Ch: 250m)</option></select>
+        </div>
+
+        <h2>Alignment Chainage Input Matrix</h2>
+        <div class="station-list" id="stationsContainer">
+            <div class="station-row" id="st_0">
+                <div class="station-title"><span>Station 1</span></div>
+                <div class="form-row-5">
+                    <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="0" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.30" step="0.01" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.00" step="0.01" oninput="updateAll()"></div>
+                </div>
+            </div>
+            <div class="station-row" id="st_1">
+                <div class="station-title"><span>Station 2</span><button class="btn-delete-station" onclick="deleteStation(&#39;st_1&#39;)">Delete</button></div>
+                <div class="form-row-5">
+                    <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="30" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.45" step="0.01" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.15" step="0.01" oninput="updateAll()"></div>
+                </div>
+            </div>
+            <div class="station-row" id="st_2">
+                <div class="station-title"><span>Station 3</span><button class="btn-delete-station" onclick="deleteStation(&#39;st_2&#39;)">Delete</button></div>
+                <div class="form-row-5">
+                    <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="60" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.10" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" step="0.1" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.50" step="0.01" oninput="updateAll()"></div>
+                    <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.30" step="0.01" oninput="updateAll()"></div>
+                </div>
+            </div>
+        
+                <div class="station-row" id="st_1784945312803">
+                    <div class="station-title"><span>Station 4</span><button class="btn-delete-station" onclick="deleteStation(&#39;st_1784945312803&#39;)">Delete</button></div>
+                    <div class="form-row-5">
+                        <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.45" step="0.01" oninput="updateAll()"></div>
+                    </div>
+                </div>
+                <div class="station-row" id="st_1784945347208">
+                    <div class="station-title"><span>Station 5</span><button class="btn-delete-station" onclick="deleteStation(&#39;st_1784945347208&#39;)">Delete</button></div>
+                    <div class="form-row-5">
+                        <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.60" step="0.01" oninput="updateAll()"></div>
+                    </div>
+                </div>
+                <div class="station-row" id="st_1784945376735">
+                    <div class="station-title"><span>Station 6</span><button class="btn-delete-station" onclick="deleteStation(&#39;st_1784945376735&#39;)">Delete</button></div>
+                    <div class="form-row-5">
+                        <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="1.75" step="0.01" oninput="updateAll()"></div>
+                    </div>
+                </div></div>
+        
+        <button class="btn-secondary" onclick="addStationRow()">+ Add New Station</button>
+        <button onclick="window.print()">Print Report (Landscape Single-Page)</button>
+    </div>
+
+    <div class="preview-panel">
+        <div class="document-page">
+            
+            <table class="header-table">
+                <tbody><tr>
+                    <td class="label-cell">Name of work :</td>
+                    <td class="value-cell" id="docWorkName">Excavation work sequence verification profile</td>
+                </tr>
+            </tbody></table>
+
+            <div class="graphics-row">
+                <div class="drawing-container">
+                    <svg id="lSectionSvg" width="530" height="230" viewBox="0 0 530 230">
+                <defs>
+                    <pattern id="hatchGrid" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="0" x2="0" y2="8" style="stroke:#f1f5f9; stroke-width:0.75"></line>
+                    </pattern>
+                </defs>
+                <rect x="90" y="20" width="420" height="120" fill="url(#hatchGrid)"></rect>
+            <line x1="90" y1="20" x2="510" y2="20" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="23" font-size="8" text-anchor="end">0.00</text><line x1="90" y1="44" x2="510" y2="44" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="47" font-size="8" text-anchor="end">0.50</text><line x1="90" y1="68" x2="510" y2="68" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="71" font-size="8" text-anchor="end">1.00</text><line x1="90" y1="92" x2="510" y2="92" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="95" font-size="8" text-anchor="end">1.50</text><line x1="90" y1="116" x2="510" y2="116" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="119" font-size="8" text-anchor="end">2.00</text><line x1="90" y1="140" x2="510" y2="140" stroke="#cbd5e1" stroke-width="0.5"></line><text x="82" y="143" font-size="8" text-anchor="end">2.50</text><circle cx="110" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="110" cy="34.4" r="2.5" fill="#ef4444"></circle><circle cx="110" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="110" y1="20" x2="110" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><circle cx="186" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="186" cy="35.84" r="2.5" fill="#ef4444"></circle><circle cx="186" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="186" y1="20" x2="186" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><circle cx="262" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="262" cy="38.239999999999995" r="2.5" fill="#ef4444"></circle><circle cx="262" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="262" y1="20" x2="262" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><circle cx="338" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="338" cy="41.599999999999994" r="2.5" fill="#ef4444"></circle><circle cx="338" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="338" y1="20" x2="338" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><circle cx="414" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="414" cy="39.2" r="2.5" fill="#ef4444"></circle><circle cx="414" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="414" y1="20" x2="414" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><circle cx="490" cy="20" r="2.5" fill="#70ad47"></circle><circle cx="490" cy="39.2" r="2.5" fill="#ef4444"></circle><circle cx="490" cy="92" r="2.5" fill="#1e3a8a"></circle><line x1="490" y1="20" x2="490" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"></line><polyline points="110,20 186,20 262,20 338,20 414,20 490,20 " fill="none" stroke="#70ad47" stroke-width="1.5"></polyline><polyline points="110,34.4 186,35.84 262,38.239999999999995 338,41.599999999999994 414,39.2 490,39.2 " fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"></polyline><polyline points="110,92 186,92 262,92 338,92 414,92 490,92 " fill="none" stroke="#1e3a8a" stroke-width="1.5"></polyline>
+                <g stroke="#cbd5e1" stroke-width="1">
+                    <line x1="20" y1="150" x2="510" y2="150"></line><line x1="20" y1="162" x2="510" y2="162"></line>
+                    <line x1="20" y1="174" x2="510" y2="174"></line><line x1="20" y1="186" x2="510" y2="186"></line>
+                    <line x1="20" y1="198" x2="510" y2="198"></line><line x1="20" y1="210" x2="210" y2="210"></line>
+                    <line x1="20" y1="150" x2="20" y2="210"></line><line x1="90" y1="150" x2="90" y2="210"></line>
+                    <line x1="510" y1="150" x2="510" y2="210"></line>
+                </g>
+                <text x="24" y="161" font-size="7.5" font-weight="bold">Proposed W</text>
+                <text x="24" y="173" font-size="7.5" font-weight="bold">Exist Depth</text>
+                <text x="24" y="185" font-size="7.5" font-weight="bold">Prop Depth</text>
+                <text x="24" y="197" font-size="7.5" font-weight="bold">Net Cut D</text>
+                <text x="86" y="209" font-size="7.5" text-anchor="end" font-weight="bold">Chainage</text>
+            
+                    <text x="110" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="110" y="174" font-size="8" text-anchor="middle">0.30</text>
+                    <text x="110" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="110" y="198" font-size="8" text-anchor="middle">1.20</text>
+                    <text x="110" y="210" font-size="8" text-anchor="middle" font-weight="bold">0</text>
+                
+                    <text x="186" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="186" y="174" font-size="8" text-anchor="middle">0.33</text>
+                    <text x="186" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="186" y="198" font-size="8" text-anchor="middle">1.17</text>
+                    <text x="186" y="210" font-size="8" text-anchor="middle" font-weight="bold">50</text>
+                
+                    <text x="262" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="262" y="174" font-size="8" text-anchor="middle">0.38</text>
+                    <text x="262" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="262" y="198" font-size="8" text-anchor="middle">1.12</text>
+                    <text x="262" y="210" font-size="8" text-anchor="middle" font-weight="bold">100</text>
+                
+                    <text x="338" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="338" y="174" font-size="8" text-anchor="middle">0.45</text>
+                    <text x="338" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="338" y="198" font-size="8" text-anchor="middle">1.05</text>
+                    <text x="338" y="210" font-size="8" text-anchor="middle" font-weight="bold">150</text>
+                
+                    <text x="414" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="414" y="174" font-size="8" text-anchor="middle">0.40</text>
+                    <text x="414" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="414" y="198" font-size="8" text-anchor="middle">1.10</text>
+                    <text x="414" y="210" font-size="8" text-anchor="middle" font-weight="bold">200</text>
+                
+                    <text x="490" y="162" font-size="8" text-anchor="middle">3.00</text>
+                    <text x="490" y="174" font-size="8" text-anchor="middle">0.40</text>
+                    <text x="490" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">1.50</text>
+                    <text x="490" y="198" font-size="8" text-anchor="middle">1.10</text>
+                    <text x="490" y="210" font-size="8" text-anchor="middle" font-weight="bold">250</text>
+                </svg>
+                    <div class="section-title">L - section profile plan (Ground level 0.00 at Top).</div>
+                </div>
+
+                <div class="drawing-container">
+                    <svg id="cSectionSvg" width="430" height="230" viewBox="0 0 430 230">
+                <line x1="20" y1="40" x2="410" y2="40" stroke="#70ad47" stroke-width="1.2"></line>
+
+                <line x1="60" y1="40" x2="137.5" y2="140" stroke="black" stroke-width="2"></line>
+                <line x1="137.5" y1="140" x2="292.5" y2="140" stroke="black" stroke-width="2"></line>
+                <line x1="292.5" y1="140" x2="370" y2="40" stroke="black" stroke-width="2"></line>
+
+                <line x1="93.58333333333333" y1="40" x2="109.08333333333333" y2="60" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,3"></line>
+                <line x1="109.08333333333333" y1="60" x2="320.9166666666667" y2="60" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3"></line>
+                <line x1="320.9166666666667" y1="60" x2="336.4166666666667" y2="40" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,3"></line>
+                
+                <text x="93.58333333333333" y="34" font-size="8" fill="#ef4444" font-weight="bold">2.35m</text>
+                <text x="370" y="34" font-size="8" fill="#1e3a8a" font-weight="bold" text-anchor="end">3.00m</text>
+                <text x="410" y="56" font-size="8" fill="#ef4444" font-weight="bold" text-anchor="end">2.05m</text>
+
+                <line x1="60" y1="40" x2="60" y2="170" stroke="black" stroke-width="0.5" stroke-dasharray="2,2"></line>
+                <line x1="137.5" y1="140" x2="137.5" y2="170" stroke="black" stroke-width="0.5" stroke-dasharray="2,2"></line>
+                <line x1="292.5" y1="140" x2="292.5" y2="170" stroke="black" stroke-width="0.5" stroke-dasharray="2,2"></line>
+                <line x1="370" y1="40" x2="370" y2="170" stroke="black" stroke-width="0.5" stroke-dasharray="2,2"></line>
+
+                <line x1="20" y1="40" x2="20" y2="140" stroke="black" stroke-width="0.8"></line>
+                <line x1="15" y1="40" x2="25" y2="40" stroke="black" stroke-width="0.8"></line>
+                <line x1="15" y1="140" x2="25" y2="140" stroke="black" stroke-width="0.8"></line>
+                <text x="35" y="93" font-family="Times New Roman" font-size="10" font-weight="bold" text-anchor="end" fill="#1e3a8a">1.50m</text>
+
+                <line x1="60" y1="158" x2="370" y2="158" stroke="black" stroke-width="0.8"></line>
+                <line x1="60" y1="153" x2="60" y2="163" stroke="black" stroke-width="0.8"></line>
+                <line x1="137.5" y1="153" x2="137.5" y2="163" stroke="black" stroke-width="0.8"></line>
+                <line x1="292.5" y1="153" x2="292.5" y2="163" stroke="black" stroke-width="0.8"></line>
+                <line x1="370" y1="153" x2="370" y2="163" stroke="black" stroke-width="0.8"></line>
+                
+                <rect x="84.75" y="151" width="28" height="13" fill="white"></rect>
+                <text x="98.75" y="161" font-family="Times New Roman" font-size="9" text-anchor="middle">0.75m</text>
+                
+                <rect x="195" y="151" width="40" height="13" fill="white"></rect>
+                <text x="215" y="161" font-family="Times New Roman" font-size="10" font-weight="bold" fill="#1e3a8a" text-anchor="middle">1.50m</text>
+                
+                <rect x="317.25" y="151" width="28" height="13" fill="white"></rect>
+                <text x="331.25" y="161" font-family="Times New Roman" font-size="9" text-anchor="middle">0.75m</text>
+
+                <text x="127.5" y="120" font-family="Times New Roman" font-style="italic" font-size="9" text-anchor="end">1:0.50</text>
+                <text x="302.5" y="120" font-family="Times New Roman" font-style="italic" font-size="9" text-anchor="start">1:0.50</text>
+            </svg>
+                    <div class="section-title" id="cSectionTitle">C - section profile (Station 1 at Chainage 0m).</div>
+                </div>
+            </div>
+
+            <div class="calc-report-container" id="calculationReportContainer">
+                <div class="calc-title">Excavation Volume Step-by-Step Measurements &amp; Calculation List</div>
+                <div id="calcListContent"><div class="calc-item">
+                    <div><strong>Chainage Station 1 to Station 2 (Interval Length: 50.00m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        • Proposed: 50.00 × ((3.00 + 1.50) / 2) × ((1.50 + 1.50) / 2) = <strong>168.75 m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        • Existing: 50.00 × ((2.37 + 2.05) / 2) × ((0.30 + 0.33) / 2) = <strong>34.77 m³</strong>
+                    </div>
+                </div><div class="calc-item">
+                    <div><strong>Chainage Station 2 to Station 3 (Interval Length: 50.00m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        • Proposed: 50.00 × ((3.00 + 1.50) / 2) × ((1.50 + 1.50) / 2) = <strong>168.75 m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        • Existing: 50.00 × ((2.90 + 2.54) / 2) × ((0.33 + 0.38) / 2) = <strong>48.32 m³</strong>
+                    </div>
+                </div><div class="calc-item">
+                    <div><strong>Chainage Station 3 to Station 4 (Interval Length: 50.00m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        • Proposed: 50.00 × ((3.00 + 1.50) / 2) × ((1.50 + 1.50) / 2) = <strong>168.75 m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        • Existing: 50.00 × ((2.88 + 2.47) / 2) × ((0.38 + 0.45) / 2) = <strong>55.56 m³</strong>
+                    </div>
+                </div><div class="calc-item">
+                    <div><strong>Chainage Station 4 to Station 5 (Interval Length: 50.00m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        • Proposed: 50.00 × ((3.00 + 1.50) / 2) × ((1.50 + 1.50) / 2) = <strong>168.75 m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        • Existing: 50.00 × ((2.38 + 1.95) / 2) × ((0.45 + 0.40) / 2) = <strong>45.95 m³</strong>
+                    </div>
+                </div><div class="calc-item">
+                    <div><strong>Chainage Station 5 to Station 6 (Interval Length: 50.00m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        • Proposed: 50.00 × ((3.00 + 1.50) / 2) × ((1.50 + 1.50) / 2) = <strong>168.75 m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        • Existing: 50.00 × ((2.35 + 1.95) / 2) × ((0.40 + 0.40) / 2) = <strong>43.00 m³</strong>
+                    </div>
+                </div><div class="total-highlight">
+                <div>Total Cumulative Proposed Vol : 843.75 m³</div>
+                <div>Total Cumulative Existing Vol : 227.60 m³</div>
+                <div style="font-size:11pt; margin-top:4px; color:#0284c7;">Net Target Excavation Volume (Proposed - Existing) = 616.15 m³</div>
+            </div></div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let stationArrayData = [];
+
+        function collectFormData() {
+            const distInputs = document.querySelectorAll('.l-dist');
+            const existTopInputs = document.querySelectorAll('.l-exist-top');
+            const widthInputs = document.querySelectorAll('.l-width');
+            const existInputs = document.querySelectorAll('.l-exist');
+            const depthInputs = document.querySelectorAll('.l-depth');
+            const rows = document.querySelectorAll('.station-row');
+            
+            stationArrayData = [];
+            
+            rows.forEach((row, idx) => {
+                let dStr = distInputs[idx] ? distInputs[idx].value.trim() : "";
+                let etStr = existTopInputs[idx] ? existTopInputs[idx].value.trim() : "";
+                let wStr = widthInputs[idx] ? widthInputs[idx].value.trim() : "";
+                let eStr = existInputs[idx] ? existInputs[idx].value.trim() : "";
+                let pStr = depthInputs[idx] ? depthInputs[idx].value.trim() : "";
+                
+                stationArrayData.push({
+                    id: row.id,
+                    chainage: dStr === "" ? 0 : parseFloat(dStr),
+                    existTopWidth: etStr === "" ? 0 : parseFloat(etStr),
+                    width: wStr === "" ? 0 : parseFloat(wStr),
+                    exist: eStr === "" ? 0 : parseFloat(eStr),
+                    depth: pStr === "" ? 0 : parseFloat(pStr)
+                });
+            });
+        }
+
+        function syncDropdownOptions() {
+            const selector = document.getElementById('cSectionSelector');
+            const savedValue = selector.value;
+            selector.innerHTML = '';
+
+            stationArrayData.forEach((st, idx) => {
+                const opt = document.createElement('option');
+                opt.value = st.id;
+                opt.textContent = `Station ${idx + 1} (Ch: ${st.chainage}m)`;
+                selector.appendChild(opt);
+            });
+
+            if ([...selector.options].some(o => o.value === savedValue)) {
+                selector.value = savedValue;
+            } else if (selector.options.length > 0) {
+                selector.value = selector.options[0].value;
+            }
+        }
+
+        function reindexControlPanelLabels() {
+            const rows = document.querySelectorAll('.station-row');
+            rows.forEach((row, idx) => {
+                const span = row.querySelector('.station-title span');
+                if(span) span.textContent = `Station ${idx + 1}`;
+            });
+        }
+
+        function addStationRow() {
+            const container = document.getElementById('stationsContainer');
+            const id = 'st_' + Date.now();
+            
+            const existingRows = document.querySelectorAll('.station-row').length;
+            const defaultPropDepthValue = 1.00 + (existingRows * 0.15);
+
+            const rowHTML = `
+                <div class="station-row" id="${id}">
+                    <div class="station-title"><span>Station</span><button class="btn-delete-station" onclick="deleteStation('${id}')">Delete</button></div>
+                    <div class="form-row-5">
+                        <div class="form-group"><label>Chainage</label><input type="number" class="l-dist" value="" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist Top W</label><input type="number" class="l-exist-top" value="4.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop Top W</label><input type="number" class="l-width" value="4.50" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Exist D</label><input type="number" class="l-exist" value="0.00" oninput="updateAll()"></div>
+                        <div class="form-group"><label>Prop D</label><input type="number" class="l-depth" value="${defaultPropDepthValue.toFixed(2)}" step="0.01" oninput="updateAll()"></div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', rowHTML);
+            updateAll();
+        }
+
+        function deleteStation(id) {
+            const row = document.getElementById(id);
+            if(row) {
+                row.remove();
+                updateAll();
+            }
+        }
+
+        function renderLSection() {
+            const lSvg = document.getElementById('lSectionSvg');
+            lSvg.innerHTML = `
+                <defs>
+                    <pattern id="hatchGrid" width="8" height="8" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+                        <line x1="0" y1="0" x2="0" y2="8" style="stroke:#f1f5f9; stroke-width:0.75" />
+                    </pattern>
+                </defs>
+                <rect x="90" y="20" width="420" height="120" fill="url(#hatchGrid)" />
+            `;
+
+            const startX = 110, endX = 490, plotWidth = endX - startX;
+            const maxChainage = stationArrayData.length > 0 ? Math.max(...stationArrayData.map(s => s.chainage)) : 100;
+            const maxGraphDepthTracking = stationArrayData.length > 0 ? Math.max(2.5, ...stationArrayData.map(s => s.depth)) : 2.5; 
+            
+            const graphHeight = 120;
+            const graphTopY = 20;     
+
+            function getLSectionY(depth) {
+                return graphTopY + ((depth / maxGraphDepthTracking) * graphHeight);
+            }
+
+            for(let i=0; i<=5; i++) {
+                let depthVal = ((i / 5) * maxGraphDepthTracking).toFixed(2);
+                let y = getLSectionY(parseFloat(depthVal));
+                lSvg.innerHTML += `<line x1="90" y1="${y}" x2="510" y2="${y}" stroke="#cbd5e1" stroke-width="0.5"/>`;
+                lSvg.innerHTML += `<text x="82" y="${y+3}" font-size="8" text-anchor="end">${depthVal}</text>`;
+            }
+
+            let pointsGL = "", pointsProp = "", pointsExist = "";
+            let dataRowHtmlTableMatrix = "";
+
+            stationArrayData.forEach((st, idx) => {
+                let cx = startX + (maxChainage === 0 ? 0 : (st.chainage / maxChainage) * plotWidth);
+                let cyGl = graphTopY; 
+                let cyExist = getLSectionY(st.exist);
+                let cyProp = getLSectionY(st.depth);
+
+                pointsGL += `${cx},${cyGl} `;
+                pointsExist += `${cx},${cyExist} `;
+                pointsProp += `${cx},${cyProp} `;
+
+                lSvg.innerHTML += `<circle cx="${cx}" cy="${cyGl}" r="2.5" fill="#70ad47"/>`;
+                lSvg.innerHTML += `<circle cx="${cx}" cy="${cyExist}" r="2.5" fill="#ef4444"/>`;
+                lSvg.innerHTML += `<circle cx="${cx}" cy="${cyProp}" r="2.5" fill="#1e3a8a"/>`;
+                
+                lSvg.innerHTML += `<line x1="${cx}" y1="20" x2="${cx}" y2="210" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+
+                dataRowHtmlTableMatrix += `
+                    <text x="${cx}" y="162" font-size="8" text-anchor="middle">${st.width.toFixed(2)}</text>
+                    <text x="${cx}" y="174" font-size="8" text-anchor="middle">${st.exist.toFixed(2)}</text>
+                    <text x="${cx}" y="186" font-size="8" text-anchor="middle" font-weight="bold" fill="#1e3a8a">${st.depth.toFixed(2)}</text>
+                    <text x="${cx}" y="198" font-size="8" text-anchor="middle">${(st.depth - st.exist).toFixed(2)}</text>
+                    <text x="${cx}" y="210" font-size="8" text-anchor="middle" font-weight="bold">${st.chainage}</text>
+                `;
+            });
+
+            if (stationArrayData.length > 1) {
+                lSvg.innerHTML += `<polyline points="${pointsGL}" fill="none" stroke="#70ad47" stroke-width="1.5"/>`;
+                lSvg.innerHTML += `<polyline points="${pointsExist}" fill="none" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,2"/>`;
+                lSvg.innerHTML += `<polyline points="${pointsProp}" fill="none" stroke="#1e3a8a" stroke-width="1.5"/>`;
+            }
+
+            lSvg.innerHTML += `
+                <g stroke="#cbd5e1" stroke-width="1">
+                    <line x1="20" y1="150" x2="510" y2="150"/><line x1="20" y1="162" x2="510" y2="162"/>
+                    <line x1="20" y1="174" x2="510" y2="174"/><line x1="20" y1="186" x2="510" y2="186"/>
+                    <line x1="20" y1="198" x2="510" y2="198"/><line x1="20" y1="210" x2="210" y2="210"/>
+                    <line x1="20" y1="150" x2="20" y2="210"/><line x1="90" y1="150" x2="90" y2="210"/>
+                    <line x1="510" y1="150" x2="510" y2="210"/>
+                </g>
+                <text x="24" y="161" font-size="7.5" font-weight="bold">Proposed W</text>
+                <text x="24" y="173" font-size="7.5" font-weight="bold">Exist Depth</text>
+                <text x="24" y="185" font-size="7.5" font-weight="bold">Prop Depth</text>
+                <text x="24" y="197" font-size="7.5" font-weight="bold">Net Cut D</text>
+                <text x="86" y="209" font-size="7.5" text-anchor="end" font-weight="bold">Chainage</text>
+            ` + dataRowHtmlTableMatrix;
+        }
+
+        function renderCrossSection() {
+            const cSvg = document.getElementById('cSectionSvg');
+            const targetStationId = document.getElementById('cSectionSelector').value;
+            const slopeH = parseFloat(document.getElementById('slopeRatioSelector').value);
+            
+            let activeIdx = stationArrayData.findIndex(s => s.id === targetStationId);
+            if (activeIdx === -1) activeIdx = 0;
+            
+            const st = stationArrayData[activeIdx];
+            if (!st) return;
+
+            document.getElementById('cSectionTitle').textContent = `C - section profile (Station ${activeIdx + 1} at Chainage ${st.chainage}m).`;
+
+            const W_top = st.width;
+            const W_exist_top = st.existTopWidth;
+            const totalPropD = st.depth; 
+            const existD = st.exist;
+
+            const totalSideOffset = totalPropD * slopeH;
+            let W_bottom = W_top - (2 * totalSideOffset);
+            if (W_bottom < 0) W_bottom = 0;
+
+            const existSideOffset = existD * slopeH;
+            let W_exist_bottom = W_exist_top - (2 * existSideOffset);
+            if (W_exist_bottom < 0) W_exist_bottom = 0;
+
+            const baseCanvasLeft = 60;
+            const baseCanvasRight = 370;
+            const totalCanvasWidth = baseCanvasRight - baseCanvasLeft;
+            const glY = 40;  
+            
+            const maxOverallWidth = Math.max(W_top, W_exist_top);
+            const scaleFactor = Math.min(80, 100 / (totalPropD || 1)); 
+            const bedFloorY = glY + (totalPropD * scaleFactor);
+            const existLineY = glY + (existD * scaleFactor);
+
+            const propPxWidth = (W_top / maxOverallWidth) * totalCanvasWidth;
+            const propStartX = baseCanvasLeft + (totalCanvasWidth - propPxWidth) / 2;
+            const propEndX = propStartX + propPxWidth;
+            const propReductionPx = (totalSideOffset / W_top) * propPxWidth;
+            const leftBottomX = propStartX + propReductionPx;
+            const rightBottomX = propEndX - propReductionPx;
+
+            const existPxWidth = (W_exist_top / maxOverallWidth) * totalCanvasWidth;
+            const existStartX = baseCanvasLeft + (totalCanvasWidth - existPxWidth) / 2;
+            const existEndX = existStartX + existPxWidth;
+            const existReductionPx = W_exist_top > 0 ? (existSideOffset / W_exist_top) * existPxWidth : 0;
+            const leftExistX = existStartX + existReductionPx;
+            const rightExistX = existEndX - existReductionPx;
+
+            cSvg.innerHTML = `
+                <line x1="20" y1="${glY}" x2="410" y2="${glY}" stroke="#70ad47" stroke-width="1.2" />
+
+                <line x1="${propStartX}" y1="${glY}" x2="${leftBottomX}" y2="${bedFloorY}" stroke="black" stroke-width="2" />
+                <line x1="${leftBottomX}" y1="${bedFloorY}" x2="${rightBottomX}" y2="${bedFloorY}" stroke="black" stroke-width="2" />
+                <line x1="${rightBottomX}" y1="${bedFloorY}" x2="${propEndX}" y2="${glY}" stroke="black" stroke-width="2" />
+
+                <line x1="${existStartX}" y1="${glY}" x2="${leftExistX}" y2="${existLineY}" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,3" />
+                <line x1="${leftExistX}" y1="${existLineY}" x2="${rightExistX}" y2="${existLineY}" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,3" />
+                <line x1="${rightExistX}" y1="${existLineY}" x2="${existEndX}" y2="${glY}" stroke="#ef4444" stroke-width="1.2" stroke-dasharray="3,3" />
+                
+                <text x="${existStartX}" y="${glY - 6}" font-size="8" fill="#ef4444" font-weight="bold">${W_exist_top.toFixed(2)}m</text>
+                <text x="${propEndX}" y="${glY - 6}" font-size="8" fill="#1e3a8a" font-weight="bold" text-anchor="end">${W_top.toFixed(2)}m</text>
+                <text x="410" y="${existLineY - 4}" font-size="8" fill="#ef4444" font-weight="bold" text-anchor="end">${W_exist_bottom.toFixed(2)}m</text>
+
+                <line x1="${propStartX}" y1="${glY}" x2="${propStartX}" y2="${bedFloorY + 30}" stroke="black" stroke-width="0.5" stroke-dasharray="2,2" />
+                <line x1="${leftBottomX}" y1="${bedFloorY}" x2="${leftBottomX}" y2="${bedFloorY + 30}" stroke="black" stroke-width="0.5" stroke-dasharray="2,2" />
+                <line x1="${rightBottomX}" y1="${bedFloorY}" x2="${rightBottomX}" y2="${bedFloorY + 30}" stroke="black" stroke-width="0.5" stroke-dasharray="2,2" />
+                <line x1="${propEndX}" y1="${glY}" x2="${propEndX}" y2="${bedFloorY + 30}" stroke="black" stroke-width="0.5" stroke-dasharray="2,2" />
+
+                <line x1="20" y1="${glY}" x2="20" y2="${bedFloorY}" stroke="black" stroke-width="0.8" />
+                <line x1="15" y1="${glY}" x2="25" y2="${glY}" stroke="black" stroke-width="0.8" />
+                <line x1="15" y1="${bedFloorY}" x2="25" y2="${bedFloorY}" stroke="black" stroke-width="0.8" />
+                <text x="12" y="${(glY + bedFloorY)/2 + 3}" font-family="Times New Roman" font-size="10" font-weight="bold" text-anchor="end" fill="#1e3a8a">${totalPropD.toFixed(2)}m</text>
+
+                <line x1="${propStartX}" y1="${bedFloorY + 18}" x2="${propEndX}" y2="${bedFloorY + 18}" stroke="black" stroke-width="0.8" />
+                <line x1="${propStartX}" y1="${bedFloorY + 13}" x2="${propStartX}" y2="${bedFloorY + 23}" stroke="black" stroke-width="0.8" />
+                <line x1="${leftBottomX}" y1="${bedFloorY + 13}" x2="${leftBottomX}" y2="${bedFloorY + 23}" stroke="black" stroke-width="0.8" />
+                <line x1="${rightBottomX}" y1="${bedFloorY + 13}" x2="${rightBottomX}" y2="${bedFloorY + 23}" stroke="black" stroke-width="0.8" />
+                <line x1="${propEndX}" y1="${bedFloorY + 13}" x2="${propEndX}" y2="${bedFloorY + 23}" stroke="black" stroke-width="0.8" />
+                
+                <rect x="${(propStartX + leftBottomX)/2 - 14}" y="${bedFloorY + 11}" width="28" height="13" fill="white"/>
+                <text x="${(propStartX + leftBottomX)/2}" y="${bedFloorY + 21}" font-family="Times New Roman" font-size="9" text-anchor="middle">${totalSideOffset.toFixed(2)}m</text>
+                
+                <rect x="${(leftBottomX + rightBottomX)/2 - 20}" y="${bedFloorY + 11}" width="40" height="13" fill="white"/>
+                <text x="${(leftBottomX + rightBottomX)/2}" y="${bedFloorY + 21}" font-family="Times New Roman" font-size="10" font-weight="bold" fill="#1e3a8a" text-anchor="middle">${W_bottom.toFixed(2)}m</text>
+                
+                <rect x="${(rightBottomX + propEndX)/2 - 14}" y="${bedFloorY + 11}" width="28" height="13" fill="white"/>
+                <text x="${(rightBottomX + propEndX)/2}" y="${bedFloorY + 21}" font-family="Times New Roman" font-size="9" text-anchor="middle">${totalSideOffset.toFixed(2)}m</text>
+
+                <text x="${leftBottomX - 10}" y="${bedFloorY - 20}" font-family="Times New Roman" font-style="italic" font-size="9" text-anchor="end">1:${slopeH.toFixed(2)}</text>
+                <text x="${rightBottomX + 10}" y="${bedFloorY - 20}" font-family="Times New Roman" font-style="italic" font-size="9" text-anchor="start">1:${slopeH.toFixed(2)}</text>
+            `;
+        }
+
+        function calculateEstimationMatrixSheet() {
+            const container = document.getElementById('calcListContent');
+            container.innerHTML = '';
+            const slopeH = parseFloat(document.getElementById('slopeRatioSelector').value);
+
+            let totalProposedVol = 0;
+            let totalExistingVol = 0;
+
+            for (let i = 1; i < stationArrayData.length; i++) {
+                let st1 = stationArrayData[i - 1];
+                let st2 = stationArrayData[i];
+                let lengthX = st2.chainage - st1.chainage;
+
+                // Proposed Calculations
+                let st1_prop_bottom = Math.max(0, st1.width - (2 * st1.depth * slopeH));
+                let st2_prop_bottom = Math.max(0, st2.width - (2 * st2.depth * slopeH));
+                
+                let avg_prop_top = (st1.width + st2.width) / 2;
+                let avg_prop_bottom = (st1_prop_bottom + st2_prop_bottom) / 2;
+                let avg_prop_depth = (st1.depth + st2.depth) / 2;
+                
+                let segmentPropVol = lengthX * ((avg_prop_top + avg_prop_bottom) / 2) * avg_prop_depth;
+                totalProposedVol += segmentPropVol;
+
+                // Existing Calculations
+                let st1_exist_bottom = Math.max(0, st1.existTopWidth - (2 * st1.exist * slopeH));
+                let st2_exist_bottom = Math.max(0, st2.existTopWidth - (2 * st2.exist * slopeH));
+                
+                let avg_exist_top = (st1.existTopWidth + st2.existTopWidth) / 2;
+                let avg_exist_bottom = (st1_exist_bottom + st2_exist_bottom) / 2;
+                let avg_exist_depth = (st1.exist + st2.exist) / 2;
+
+                let segmentExistVol = lengthX * ((avg_exist_top + avg_exist_bottom) / 2) * avg_exist_depth;
+                totalExistingVol += segmentExistVol;
+
+                // Generate Clean UI Item Element block
+                let itemDiv = document.createElement('div');
+                itemDiv.className = 'calc-item';
+                itemDiv.innerHTML = `
+                    <div><strong>Chainage Station ${i} to Station ${i+1} (Interval Length: ${lengthX.toFixed(2)}m)</strong></div>
+                    <div class="calc-sub-line" style="color: #1e3a8a;">
+                        &bull; Proposed: ${lengthX.toFixed(2)} &times; ((${avg_prop_top.toFixed(2)} + ${avg_prop_bottom.toFixed(2)}) / 2) &times; ((${st1.depth.toFixed(2)} + ${st2.depth.toFixed(2)}) / 2) = <strong>${segmentPropVol.toFixed(2)} m³</strong>
+                    </div>
+                    <div class="calc-sub-line" style="color: #ef4444;">
+                        &bull; Existing: ${lengthX.toFixed(2)} &times; ((${avg_exist_top.toFixed(2)} + ${avg_exist_bottom.toFixed(2)}) / 2) &times; ((${st1.exist.toFixed(2)} + ${st2.exist.toFixed(2)}) / 2) = <strong>${segmentExistVol.toFixed(2)} m³</strong>
+                    </div>
+                `;
+                container.appendChild(itemDiv);
+            }
+
+            // Total net volume display section line
+            let netTotalVol = Math.max(0, totalProposedVol - totalExistingVol);
+            let summaryDiv = document.createElement('div');
+            summaryDiv.className = 'total-highlight';
+            summaryDiv.innerHTML = `
+                <div>Total Cumulative Proposed Vol : ${totalProposedVol.toFixed(2)} m³</div>
+                <div>Total Cumulative Existing Vol : ${totalExistingVol.toFixed(2)} m³</div>
+                <div style="font-size:11pt; margin-top:4px; color:#0284c7;">Net Target Excavation Volume (Proposed - Existing) = ${netTotalVol.toFixed(2)} m³</div>
+            `;
+            container.appendChild(summaryDiv);
+        }
+
+        function updateAll() {
+            document.getElementById('docWorkName').textContent = document.getElementById('workName').value;
+            collectFormData();
+            syncDropdownOptions();
+            reindexControlPanelLabels();
+            renderLSection();
+            renderCrossSection();
+            calculateEstimationMatrixSheet();
+        }
+
+        window.onload = function() {
+            updateAll();
+        };
+    </script>
+
+</body></html>

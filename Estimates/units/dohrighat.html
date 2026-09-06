@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>दोहरीघाट इकाई - बहुजन समाज विकास संस्थान</title>
+    <style>
+        :root {
+            --primary-color: #0c1e35;
+            --secondary-color: #1a3a5c;
+            --accent-gold: #d4af37;
+            --accent-gold-hover: #b89528;
+            --text-dark: #2c3e50;
+            --text-muted: #596978;
+            --bg-light: #f4f7fa;
+            --white: #ffffff;
+            --card-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* नेविगेशन बार */
+        nav {
+            background: var(--primary-color);
+            color: var(--white);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-symbol {
+            font-size: 1.8rem;
+            color: var(--accent-gold);
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 0.5px;
+        }
+
+        .back-btn {
+            background-color: var(--accent-gold);
+            color: var(--primary-color);
+            padding: 0.6rem 1.4rem;
+            text-decoration: none;
+            font-weight: 700;
+            border-radius: 25px;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .back-btn:hover {
+            background-color: var(--accent-gold-hover);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* हीरो बैनर आर्टिस्टिक डिज़ाइन */
+        .hero {
+            background: linear-gradient(rgba(12, 30, 53, 0.92), rgba(12, 30, 53, 0.92)), 
+                        url('https://images.unsplash.com/photo-1541888946425-d0fbb186a5b7?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            color: var(--white);
+            text-align: center;
+            padding: 4rem 1.5rem 5rem 1.5rem;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 2.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 0.6rem;
+            font-weight: 800;
+        }
+
+        .hero p.hero-subtitle {
+            font-size: 1.15rem;
+            max-width: 800px;
+            margin: 0 auto 1.2rem auto;
+            color: #e2e8f0;
+        }
+
+        .hero-section-tag {
+            display: inline-block;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--accent-gold);
+            color: var(--accent-gold);
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* बैनर में आर्टिस्टिक केंद्रीय कोर समिति एवं संस्थापक सदस्य */
+        .banner-core-members {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .artistic-member-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 20px;
+            padding: 1.5rem 1.2rem;
+            width: 270px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: var(--transition);
+        }
+
+        .artistic-member-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-gold);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 15px 35px rgba(212, 175, 55, 0.25);
+        }
+
+        .artistic-img-wrapper {
+            position: relative;
+            width: 125px;
+            height: 125px;
+            margin: 0 auto 1rem auto;
+        }
+
+        /* कलात्मक स्वर्ण फ्रेम बॉर्डर */
+        .artistic-img-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border-radius: 50%;
+            border: 2px dashed var(--accent-gold);
+            animation: rotateFrame 20s linear infinite;
+        }
+
+        @keyframes rotateFrame {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .artistic-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--accent-gold);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+        }
+
+        .artistic-badge {
+            background-color: var(--accent-gold);
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.25rem 0.8rem;
+            border-radius: 12px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .artistic-name {
+            font-size: 1.15rem;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .artistic-role {
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        /* मुख्य कंटेनर */
+        .container {
+            max-width: 1300px;
+            margin: 3.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 2.5rem;
+            font-size: 2rem;
+            position: relative;
+            padding-bottom: 0.6rem;
+            font-weight: 700;
+        }
+
+        .section-title::after {
+            content: '';
+            width: 70px;
+            height: 4px;
+            background-color: var(--accent-gold);
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        /* 5-सदस्यीय स्थानीय कार्यकारिणी ग्रिड */
+        .committee-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .member-card {
+            background: var(--white);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            border: 1px solid #e2e8f0;
+            padding: 1.8rem 1rem;
+            transition: var(--transition);
+        }
+
+        .member-card:hover {
+            transform: translateY(-7px);
+            border-color: var(--accent-gold);
+        }
+
+        .member-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1.2rem auto;
+            object-fit: cover;
+            border: 3px solid var(--accent-gold);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .member-name {
+            font-size: 1.05rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+        .member-post {
+            background-color: var(--primary-color);
+            color: var(--accent-gold);
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .member-desc {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+        }
+
+        /* अवसंरचना व परियोजनाएँ */
+        .infra-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .infra-card {
+            background: var(--white);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            border: 1px solid #e2e8f0;
+            transition: var(--transition);
+        }
+
+        .infra-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 18px 30px rgba(0,0,0,0.12);
+        }
+
+        .infra-img {
+            width: 100%;
+            height: 230px;
+            object-fit: cover;
+        }
+
+        .infra-body {
+            padding: 1.5rem;
+        }
+
+        .infra-body h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.6rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .infra-body p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .infra-tag {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.25rem 0.75rem;
+            background-color: #f1f5f9;
+            color: var(--primary-color);
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* संपर्क फॉर्म */
+        .contact-section {
+            background: var(--white);
+            padding: 3rem 2.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border-top: 6px solid var(--accent-gold);
+            margin-bottom: 4rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group-full {
+            grid-column: span 2;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group input, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: var(--accent-gold);
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 30px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-submit:hover {
+            background-color: var(--secondary-color);
+            color: var(--white);
+        }
+
+        footer {
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-align: center;
+            padding: 2.5rem 1rem;
+            border-top: 4px solid var(--accent-gold);
+        }
+
+        /* रिस्पॉन्सिव लेआउट */
+        @media (max-width: 1200px) {
+            .committee-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 850px) {
+            .banner-core-members {
+                gap: 1.5rem;
+            }
+            .artistic-member-card {
+                width: 230px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .committee-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .infra-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group-full {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .committee-grid {
+                grid-template-columns: 1fr;
+            }
+            .artistic-member-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- नेविगेशन -->
+    <nav>
+        <div class="logo-container">
+            <span class="logo-symbol">✊</span>
+            <span class="logo-text">बहुजन समाज विकास संस्थान</span>
+        </div>
+        <a href="../index.html" class="back-btn">&larr; मुख्य वेबसाइट पर जाएँ</a>
+    </nav>
+
+    <!-- हीरो बैनर (केंद्रीय कोर समिति / संस्थापक मंडल के 3 प्रमुख सदस्यों के साथ) -->
+    <header class="hero">
+        <h1>दोहरीघाट क्षेत्रीय इकाई</h1>
+        <p class="hero-subtitle">जनपद मऊ (उ.प्र.) — सामाजिक न्याय, आधुनिक अवसंरचना एवं जनकल्याणकारी परियोजनाओं का प्रगतिशील केंद्र</p>
+        
+        <div class="hero-section-tag">🏛️ केंद्रीय कोर समिति एवं संस्थापक नेतृत्व</div>
+
+        <!-- बैनर में 3 प्रमुख केंद्रीय संस्थापक / केंद्रीय कोर समिति सदस्य (Artistic Photos) -->
+        <div class="banner-core-members">
+
+            <!-- 1. केंद्रीय संस्थापक एवं मुख्य संरक्षक -->
+            <div class="artistic-member-card">
+                <div class="artistic-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80" alt="केंद्रीय संस्थापक" class="artistic-img">
+                </div>
+                <div class="artistic-badge">संस्थापक व केंद्रीय संरक्षक</div>
+                <div class="artistic-name">इंजी. राम स्वरूप गौतम</div>
+                <div class="artistic-role">केंद्रीय कोर समिति प्रमुख</div>
+            </div>
+
+            <!-- 2. केंद्रीय अध्यक्ष -->
+            <div class="artistic-member-card">
+                <div class="artistic-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" alt="केंद्रीय अध्यक्ष" class="artistic-img">
+                </div>
+                <div class="artistic-badge">राष्ट्रीय अध्यक्ष</div>
+                <div class="artistic-name">डॉ. रामेश्वर प्रसाद बौद्ध</div>
+                <div class="artistic-role">केंद्रीय कार्यकारिणी अध्यक्ष</div>
+            </div>
+
+            <!-- 3. केंद्रीय सह-संस्थापक एवं महासचिव -->
+            <div class="artistic-member-card">
+                <div class="artistic-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80" alt="केंद्रीय महासचिव" class="artistic-img">
+                </div>
+                <div class="artistic-badge">सह-संस्थापक व महासचिव</div>
+                <div class="artistic-name">श्री चंद्रभान सिंह</div>
+                <div class="artistic-role">केंद्रीय मुख्य मार्गदर्शक</div>
+            </div>
+
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- 5-सदस्यीय स्थानीय कार्यकारिणी टीम -->
+        <section>
+            <h2 class="section-title">दोहरीघाट इकाई - स्थानीय कार्यकारी परिषद</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem;">केंद्रीय नेतृत्व के मार्गदर्शन में दोहरीघाट इकाई का संचालन करने वाली 5-सदस्यीय स्थानीय टीम:</p>
+
+            <div class="committee-grid">
+
+                <!-- 1. इकाई अध्यक्ष -->
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80" alt="इकाई अध्यक्ष" class="member-img">
+                    <div class="member-name">श्री राजेश बौद्ध</div>
+                    <div class="member-post">इकाई अध्यक्ष</div>
+                    <p class="member-desc">क्षेत्रीय कार्यकारिणी का मुख्य प्रशासनिक संचालन व स्थानीय अभियानों का संयोजन।</p>
+                </div>
+
+                <!-- 2. उपाध्यक्ष -->
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80" alt="उपाध्यक्ष" class="member-img">
+                    <div class="member-name">श्री विकास कुमार</div>
+                    <div class="member-post">इकाई उपाध्यक्ष</div>
+                    <p class="member-desc">अध्यक्षीय कार्यों में सहयोग, युवा मोर्चा एवं स्थानीय अभियानों का नेतृत्व।</p>
+                </div>
+
+                <!-- 3. सचिव -->
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80" alt="सचिव" class="member-img">
+                    <div class="member-name">श्री अमित गौतम</div>
+                    <div class="member-post">इकाई सचिव</div>
+                    <p class="member-desc">मुख्य प्रशासनिक कार्य, पत्राचार एवं आधिकारिक अभिलेख प्रबंधन।</p>
+                </div>
+
+                <!-- 4. कोषाध्यक्ष -->
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80" alt="कोषाध्यक्ष" class="member-img">
+                    <div class="member-name">श्री सुनील गौतम</div>
+                    <div class="member-post">इकाई कोषाध्यक्ष</div>
+                    <p class="member-desc">इकाई के वित्तीय लेखे-जोखे, बजट आवंटन व आय-व्यय की पारदर्शिता।</p>
+                </div>
+
+                <!-- 5. संगठन समन्वयक -->
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80" alt="संगठन समन्वयक" class="member-img">
+                    <div class="member-name">डॉ. अनीता राव</div>
+                    <div class="member-post">इकाई समन्वयक</div>
+                    <p class="member-desc">विभिन्न जन-सुविधा विभागों, कोचिंग सेंटरों व महिला कल्याण का समन्वय।</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- विभाग समन्वयक (Department Coordinators) -->
+        <section>
+            <h2 class="section-title">विभाग समन्वयक (Department Coordinators)</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem;">विशेष जनकल्याणकारी परियोजनाओं के संचालन हेतु नियुक्त स्थानीय प्रभारी:</p>
+
+            <div class="committee-grid">
+
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80" alt="शिक्षा समन्वयक" class="member-img">
+                    <div class="member-name">श्री इं. राहुल देव</div>
+                    <div class="member-post">शिक्षा व कोचिंग समन्वयक</div>
+                    <p class="member-desc">डिजिटल लाइब्रेरी व प्रतियोगी कोचिंग संचालन के प्रमुख प्रभारी।</p>
+                </div>
+
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80" alt="व्यापार समन्वयक" class="member-img">
+                    <div class="member-name">श्रीमती सरोज बौद्ध</div>
+                    <div class="member-post">मार्केट कॉरिडोर समन्वयक</div>
+                    <p class="member-desc">दुकान आवंटन व स्थानीय कुटीर उद्योगों के संवर्धन के प्रभारी।</p>
+                </div>
+
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80" alt="धम्म समन्वयक" class="member-img">
+                    <div class="member-name">श्री प्रवीण बौद्ध</div>
+                    <div class="member-post">बुद्ध विहार व संस्कृति समन्वयक</div>
+                    <p class="member-desc">धम्म कार्यक्रमों, विपश्यना ध्यान शिविरों व सांस्कृतिक आयोजनों के प्रभारी।</p>
+                </div>
+
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80" alt="खेल व पार्क समन्वयक" class="member-img">
+                    <div class="member-name">श्री विक्रम रतन</div>
+                    <div class="member-post">पार्क व खेल समन्वयक</div>
+                    <p class="member-desc">पार्क रखरखाव, ओपन जिम व युवा खेलकूद गतिविधियों के प्रभारी।</p>
+                </div>
+
+                <div class="member-card">
+                    <img src="https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80" alt="कौशल विकास समन्वयक" class="member-img">
+                    <div class="member-name">श्रीमती पूनम राव</div>
+                    <div class="member-post">महिला सशक्तिकरण समन्वयक</div>
+                    <p class="member-desc">सिलाई केंद्र, कंप्यूटर लैब व महिला स्वरोजगार प्रशिक्षण की प्रभारी।</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- इकाई अवसंरचना एवं भवन -->
+        <section>
+            <h2 class="section-title">दोहरीघाट इकाई: प्रमुख अवसंरचना व भवन</h2>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem;">दोहरीघाट क्षेत्र में संस्थान द्वारा निर्मित व संचालित आधुनिक भवनों और स्थलों का संक्षिप्त विवरण:</p>
+
+            <div class="infra-grid">
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80" alt="संस्थान कार्यालय" class="infra-img">
+                    <div class="infra-body">
+                        <h3>🏢 क्षेत्रीय प्रशासनिक कार्यालय</h3>
+                        <p>दोहरीघाट इकाई का मुख्य प्रशासनिक केंद्र, जहाँ से सदस्यता, शिकायत निवारण और क्षेत्रीय विकास अभियानों का सुचारू संचालन किया जाता है।</p>
+                        <span class="infra-tag">प्रशासनिक केंद्र</span>
+                    </div>
+                </div>
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1609946782701-84349868baa6?auto=format&fit=crop&w=800&q=80" alt="तथागत बुद्ध विहार" class="infra-img">
+                    <div class="infra-body">
+                        <h3>🛕 तथागत बुद्ध विहार व विपश्यना केंद्र</h3>
+                        <p>मानसिक शांति, ध्यान और बौद्ध दर्शन के प्रसार हेतु निर्मित भव्य स्थल। यहाँ नियमित रूप से विपश्यना ध्यान और धम्म संगोष्ठियाँ होती हैं।</p>
+                        <span class="infra-tag">सांस्कृतिक व आध्यात्मिक केंद्र</span>
+                    </div>
+                </div>
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?auto=format&fit=crop&w=800&q=80" alt="मार्केट कॉरिडोर" class="infra-img">
+                    <div class="infra-body">
+                        <h3>🛍️ स्वावलंबन मार्केट कॉरिडोर</h3>
+                        <p>स्थानीय युवाओं व महिलाओं को आर्थिक रूप से आत्मनिर्भर बनाने हेतु निर्मित व्यावसायिक कॉम्प्लेक्स। इसमें दुकानें एवं कुटीर उद्योग स्टॉल हैं।</p>
+                        <span class="infra-tag">स्वरोजगार व व्यापार</span>
+                    </div>
+                </div>
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=800&q=80" alt="कोचिंग सेंटर" class="infra-img">
+                    <div class="infra-body">
+                        <h3>📚 प्रतियोगी कोचिंग व डिजिटल लाइब्रेरी</h3>
+                        <p>प्रतियोगी परीक्षाओं (SSC, UPSC, रेलवे, पुलिस आदि) की तैयारी हेतु स्मार्ट क्लासरूम, शांत अध्ययन कक्ष और नि:शुल्क कंप्यूटर लैब।</p>
+                        <span class="infra-tag">शिक्षा एवं करियर</span>
+                    </div>
+                </div>
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1588714477688-cf28a50e94f7?auto=format&fit=crop&w=800&q=80" alt="सामुदायिक पार्क" class="infra-img">
+                    <div class="infra-body">
+                        <h3>🌳 बहुजन चेतना पार्क एवं ओपन जिम</h3>
+                        <p>स्थानीय नागरिकों के उत्तम स्वास्थ्य व मनोरंजन के लिए बनाया गया हरा-भरा पार्क। इसमें जॉगिंग ट्रैक और ओपन जिम उपकरण स्थापित हैं।</p>
+                        <span class="infra-tag">स्वास्थ्य व पर्यावरण</span>
+                    </div>
+                </div>
+
+                <div class="infra-card">
+                    <img src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80" alt="कौशल विकास भवन" class="infra-img">
+                    <div class="infra-body">
+                        <h3>🛠️ युवा व महिला कौशल विकास भवन</h3>
+                        <p>सिलाई, हस्तशिल्प, कंप्यूटर सॉफ्टवेयर और तकनीकी प्रशिक्षण देकर युवाओं को रोजगार योग्य बनाने का आधुनिक केंद्र।</p>
+                        <span class="infra-tag">कौशल विकास</span>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- दोहरीघाट इकाई से जुड़ें (संपर्क फॉर्म) -->
+        <section>
+            <h2 class="section-title">दोहरीघाट इकाई से संपर्क / सहभागिता फॉर्म</h2>
+            <div class="contact-section">
+                <form id="dohrighatForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">पूरा नाम *</label>
+                            <input type="text" id="name" placeholder="अपना नाम दर्ज करें" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">मोबाइल नंबर *</label>
+                            <input type="tel" id="phone" placeholder="10 अंकों का मोबाइल नंबर" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="village">ग्राम / वार्ड / मोहल्ला *</label>
+                            <input type="text" id="village" placeholder="अपने क्षेत्र का नाम" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="interest">रुचि का क्षेत्र / आवेदन का प्रकार *</label>
+                            <input type="text" id="interest" placeholder="उदा. कोचिंग, दुकान आवंटन, सदस्यता, आदि" required>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <label for="message">संदेश या सुझाव</label>
+                            <textarea id="message" rows="3" placeholder="अपना संदेश यहाँ लिखें..."></textarea>
+                        </div>
+                        <div class="form-group form-group-full">
+                            <button type="submit" class="btn-submit">दोहरीघाट इकाई को आवेदन भेजें</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- फूटर -->
+    <footer>
+        <p><strong>बहुजन समाज विकास संस्थान — दोहरीघाट क्षेत्रीय इकाई</strong></p>
+        <p>कार्यालय: ब्लॉक रोड, दोहरीघाट, जनपद - मऊ (उत्तर प्रदेश) - 275303</p>
+        <p style="color: var(--accent-gold); margin-top: 0.8rem; font-weight: 600;">नमो बुद्धाय | जय भीम</p>
+    </footer>
+
+    <script>
+        document.getElementById('dohrighatForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            alert('धन्यवाद ' + name + '! दोहरीघाट इकाई को आपका आवेदन सफलतापूर्वक प्राप्त हो गया है।');
+            this.reset();
+        });
+    </script>
+</body>
+</html>
